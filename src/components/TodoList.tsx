@@ -1,9 +1,5 @@
 "use client";
 import {
-  Accordion,
-  AccordionBody,
-  AccordionHeader,
-  Alert,
   Button,
   Card,
   CardBody,
@@ -14,41 +10,23 @@ import {
 } from "@material-tailwind/react";
 import TodoItem from "./TodoItem";
 import React from "react";
+import { Todo, TodoList } from "@/types";
 
-const todos = [
-  {
-    id: 1,
-    title: "teste",
-    completed: true,
-    description:
-      "testando todolist e todo itemns testando todolist e todo itemns testando todolist e todo itemns",
-    dateLimit: "2023-10-10",
-  },
-  {
-    id: 2,
-    title: "teste",
-    completed: true,
-    description: "testando todolist e todo itemns",
-    dateLimit: "2023-12-10",
-  },
-  {
-    id: 3,
-    title: "teste",
-    completed: true,
-    description: "testando todolist e todo itemns",
-  },
-];
+type TodoListProps = {
+  list: TodoList;
+};
 
-const TodoList = () => {
+const TodoList = ({ list }: TodoListProps) => {
   const [open, setOpen] = React.useState(true);
 
+  const {todos} = list
   const handleOpen = () => setOpen(!open);
 
   return (
     <Card className="mt-6 w-96 h-fit pt-2 my-auto shadow-lg bg-blue-gray-50">
       <CardHeader className="justify-center text-white bg-primary text-secondary">
         <Typography variant="h5" className="text-center">
-          TODO
+          {list.name}
         </Typography>{" "}
       </CardHeader>
       <CardBody className="overflow-y-auto max-h-full">

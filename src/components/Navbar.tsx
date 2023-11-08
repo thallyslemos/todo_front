@@ -6,6 +6,7 @@ import {
   IconButton,
   Collapse,
 } from "@material-tailwind/react";
+import Link from "next/link";
 
 export function StickyNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
@@ -25,9 +26,9 @@ export function StickyNavbar() {
         color="white"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Pages
-        </a>
+        <Link href="/" className="flex items-center">
+          Home
+        </Link>
       </Typography>
       <Typography
         as="li"
@@ -35,9 +36,9 @@ export function StickyNavbar() {
         color="white"
         className="p-1 font-normal"
       >
-        <a href="#" className="flex items-center">
-          Account
-        </a>
+        <Link href="/todo" className="flex items-center">
+          Todos
+        </Link>
       </Typography>
     </ul>
   );
@@ -46,11 +47,10 @@ export function StickyNavbar() {
     <Navbar className="sticky top-0 z-10 h-max max-w-full px-4 py-2 lg:px-8 lg:py-4 bg-primary shadow-lg">
       <div className="flex items-center justify-between text-secondary">
         <Typography
-          as="a"
           href="#"
-          className="mr-4 cursor-pointer py-1.5 font-medium"
+          className="mr-4 cursor-pointer py-1.5 font-extrabold text-lg text-transparent bg-orange-gradient bg-clip-text"
         >
-          Material Tailwind
+          V360 TODOS
         </Typography>
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>
