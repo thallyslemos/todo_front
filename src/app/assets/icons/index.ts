@@ -1,0 +1,6 @@
+export * from './TrashIcon'
+export * from './EditIcon'
+export * from './AddIcon'
+export * from './Eye'
+export * from './CheckIcon'
+export * from './ExclamationIcon'
