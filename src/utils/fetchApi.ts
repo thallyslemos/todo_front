@@ -1,3 +1,5 @@
+const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+
 function handleResponse(response: Response) {
   if (!response.ok) {
     return response.text().then((text) => {
@@ -13,7 +15,7 @@ function handleResponse(response: Response) {
 }
 
 function get(path: string) {
-  return fetch(`http://localhost:3000${path}`)
+  return fetch(`${baseURL}${path}`)
     .then((response) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -24,7 +26,7 @@ function get(path: string) {
 }
 
 function post(path: string, data: object) {
-  return fetch(`http://localhost:3000${path}`, {
+  return fetch(`${baseURL}${path}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -37,7 +39,7 @@ function post(path: string, data: object) {
 
 function put(path: string, data: object) {
   console.error(data);
-  return fetch(`http://localhost:3000${path}`, {
+  return fetch(`${baseURL}${path}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -49,7 +51,7 @@ function put(path: string, data: object) {
 }
 
 function del(path: string) {
-  return fetch(`http://localhost:3000${path}`, {
+  return fetch(`${baseURL}${path}`, {
     method: "DELETE",
   })
     .then(handleResponse)
