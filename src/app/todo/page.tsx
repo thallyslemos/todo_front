@@ -13,19 +13,25 @@ import Link from "next/link";
 import { Eye, TrashIcon } from "../assets/icons";
 import { useEffect, useState } from "react";
 import { del, get } from "@/utils/fetchApi";
-import TodoList from "@/components/TodoList";
 import Toast from "@/components/Toast";
+import { TodoListType } from "@/types";
 
 export default function TodoPage({ params }: { params: { slug: string } }) {
-  const [lists, setList] = useState<TodoList[]>([]);
+  const [lists, setList] = useState<TodoListType[]>([]);
   const [loading, setLoading] = useState(true);
   const [toastData, setToastData] = useState({ message: "", type: "" });
   const [showToast, setShowToast] = useState(false);
 
   const fetchData = async () => {
-    get("/todo_lists").then((res) => {
-      setList(res);
-    });
+    setLoading(true);
+    try {
+      const response = await get(`/todo_lists`);
+      setList(response);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDelete = (id: number) => {
@@ -47,13 +53,7 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
   };
 
   useEffect(() => {
-    const fetchDataAndSetLoading = async () => {
-      setLoading(true);
-      await fetchData();
-      setLoading(false);
-    };
-
-    fetchDataAndSetLoading();
+    fetchData();
   }, []);
 
   return (

@@ -25,18 +25,32 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
     setListName(e.target.value);
 
   const handleCreate = () => {
-    post("/todo_lists", { name: listName }).then((res) => {
-      if (res?.status === 201) {
-        setToastData({ message: "Lista criada com sucesso", type: "success" });
-        onCreate();
-        setOpenDialog(false);
-        setListName("");
-      } else {
-        setToastData({ message: "Erro ao criar lista", type: "error" });
-      }
-    });
     setShowToast(false);
-    setTimeout(() => setShowToast(true), 0);
+    post("/todo_lists", { name: listName })
+      .then((res) => {
+        if (res instanceof Error) {
+          let errorMessage = res.message;
+          try {
+            const errorObject = JSON.parse(errorMessage);
+            if (errorObject.name && errorObject.name[0]) {
+              errorMessage = errorObject.name[0];
+            }
+          } catch (e) {
+            console.error(e);
+          }
+          setToastData({ message: errorMessage, type: "error" });
+        } else if (res?.status === 201) {
+          setToastData({
+            message: "Lista criada com sucesso",
+            type: "success",
+          });
+          onCreate();
+        }
+      })
+      .finally(() => {
+        setTimeout(() => setShowToast(true), 0), setOpenDialog(false);
+        setListName("");
+      });
   };
 
   return (
@@ -74,7 +88,7 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
             </Typography>
             <Input
               crossOrigin={undefined}
-              label="Tírulo"
+              label="Título"
               size="lg"
               value={listName}
               onChange={handleChange}
