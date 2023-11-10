@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState, ChangeEvent } from "react";
 import {
   Button,
   Dialog,
@@ -10,38 +10,93 @@ import {
   Input,
   IconButton,
 } from "@material-tailwind/react";
+import Toast from "./Toast";
+import { AddIcon } from "@/app/assets/icons";
+import { post } from "@/utils/fetchApi";
 
-const CreateListForm = () => {
-  const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen((cur) => !cur);
+const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [listName, setListName] = useState("");
+  const [toastData, setToastData] = useState({ message: "", type: "" });
+  const [showToast, setShowToast] = useState(false);
+
+  const handleOpen = () => setOpenDialog(!openDialog);
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
+    setListName(e.target.value);
+
+  const handleCreate = () => {
+    post("/todo_lists", { name: listName }).then((res) => {
+      if (res?.status === 201) {
+        setToastData({ message: "Lista criada com sucesso", type: "success" });
+        onCreate();
+        setOpenDialog(false);
+        setListName("");
+      } else {
+        setToastData({ message: "Erro ao criar lista", type: "error" });
+      }
+    });
+    setShowToast(false);
+    setTimeout(() => setShowToast(true), 0);
+  };
 
   return (
     <>
-      <IconButton onClick={handleOpen}>Novo</IconButton>
+      {showToast && (
+        <Toast
+          message={toastData.message}
+          type={toastData.type}
+          interval={5000}
+          onClose={() => setShowToast(false)}
+        />
+      )}
+      <IconButton
+        color="green"
+        variant="outlined"
+        size="sm"
+        onClick={handleOpen}
+        className="mx-auto mt-2"
+      >
+        <AddIcon />
+      </IconButton>
       <Dialog
         size="xs"
-        open={open}
+        open={openDialog}
         handler={handleOpen}
         className="bg-transparent shadow-none"
       >
-        <Card className="mx-auto w-full max-w-[24rem]">
+        <Card className="mx-auto y-10 w-full max-w-[24rem]">
           <CardBody className="flex flex-col gap-4">
-            <Typography variant="h4" color="blue-gray">
+            <Typography variant="h4" className="text-primary">
               Nova Lista
             </Typography>
-            <Typography className="-mb-2" variant="h6">
+            <Typography className="text-primary" variant="h6">
               Título da Lista
             </Typography>
-            <Input crossOrigin label="Tírulo" size="lg" />
+            <Input
+              crossOrigin={undefined}
+              label="Tírulo"
+              size="lg"
+              value={listName}
+              onChange={handleChange}
+            />
           </CardBody>
           <CardFooter className="pt-0">
             <div className="flex gap-2">
-              {" "}
-              <Button variant="gradient" onClick={handleOpen} fullWidth>
+              <Button
+                color="green"
+                variant="gradient"
+                onClick={handleCreate}
+                fullWidth
+              >
                 Criar
               </Button>
-              <Button variant="gradient" onClick={handleOpen} fullWidth>
-                cancelar
+              <Button
+                color="red"
+                variant="gradient"
+                onClick={handleOpen}
+                fullWidth
+              >
+                Cancelar
               </Button>
             </div>
           </CardFooter>
