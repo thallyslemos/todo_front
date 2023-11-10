@@ -53,7 +53,7 @@ function del(path: string) {
     method: "DELETE",
   })
     .then(handleResponse)
-    .catch((error) => console.log(error));
+    .catch((error) => console.error(error));
 }
 
 export { get, post, put, del };

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, ChangeEvent, useContext } from "react";
 import {
   Button,
   Dialog,
@@ -9,16 +9,23 @@ import {
   Typography,
   Input,
   IconButton,
+  Tooltip,
 } from "@material-tailwind/react";
 import Toast from "./Toast";
 import { AddIcon } from "@/app/assets/icons";
 import { post } from "@/utils/fetchApi";
+import { ToastContext } from "./ToastProvider";
 
 const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [listName, setListName] = useState("");
-  const [toastData, setToastData] = useState({ message: "", type: "" });
-  const [showToast, setShowToast] = useState(false);
+  const toastContext = useContext(ToastContext);
+
+  if (!toastContext) {
+    throw new Error("TodoForm must be used within a ToastProvider");
+  }
+
+  const { setToastData, setShowToast } = toastContext;
 
   const handleOpen = () => setOpenDialog(!openDialog);
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
@@ -55,23 +62,17 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
 
   return (
     <>
-      {showToast && (
-        <Toast
-          message={toastData.message}
-          type={toastData.type}
-          interval={5000}
-          onClose={() => setShowToast(false)}
-        />
-      )}
-      <IconButton
-        color="green"
-        variant="outlined"
-        size="sm"
-        onClick={handleOpen}
-        className="mx-auto mt-2"
-      >
-        <AddIcon />
-      </IconButton>
+      <Tooltip content="Criar lista">
+        <IconButton
+          color="green"
+          variant="outlined"
+          size="sm"
+          onClick={handleOpen}
+          className="mx-auto mt-2"
+        >
+          <AddIcon />
+        </IconButton>
+      </Tooltip>
       <Dialog
         size="xs"
         open={openDialog}

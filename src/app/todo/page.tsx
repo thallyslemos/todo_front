@@ -2,19 +2,21 @@
 
 import CustomCard from "@/components/CustomCard";
 import CreateListForm from "@/components/CreateListForm";
+import { todoLists } from "@/utils/constatnts";
 import {
   IconButton,
   List,
   ListItem,
   ListItemSuffix,
   Spinner,
+  Tooltip,
 } from "@material-tailwind/react";
 import Link from "next/link";
 import { Eye, TrashIcon } from "../assets/icons";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { del, get } from "@/utils/fetchApi";
-import Toast from "@/components/Toast";
 import { TodoListType } from "@/types";
+import Toast from "@/components/Toast";
 
 export default function TodoPage({ params }: { params: { slug: string } }) {
   const [lists, setList] = useState<TodoListType[]>([]);
@@ -58,15 +60,15 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
 
   return (
     <main className="min-h-screen-main flex justify-center py-10">
-      {showToast && (
-        <Toast
-          message={toastData.message}
-          type={toastData.type}
-          interval={5000}
-          onClose={() => setShowToast(false)}
-        />
-      )}
       <CustomCard title="Minhas Listas">
+        {showToast && (
+          <Toast
+            message={toastData.message}
+            type={toastData.type}
+            interval={5000}
+            onClose={() => setShowToast(false)}
+          />
+        )}
         {loading && (
           <div className="py-10">
             <Spinner color="deep-orange" className="m-auto" />
@@ -80,19 +82,23 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
                 <ListItem key={index}>
                   {todoList.name}
                   <ListItemSuffix className="flex gap-2">
-                    <Link href={`/todo/${todoList.id}`}>
-                      <IconButton size="sm" variant="text" color="blue">
-                        <Eye />
+                    <Tooltip content="Ver lista">
+                      <Link href={`/todo/${todoList.id}`}>
+                        <IconButton size="sm" variant="text" color="blue">
+                          <Eye />
+                        </IconButton>
+                      </Link>
+                    </Tooltip>
+                    <Tooltip content="Deletar lista">
+                      <IconButton
+                        size="sm"
+                        variant="text"
+                        color="red"
+                        onClick={() => handleDelete(todoList.id)}
+                      >
+                        <TrashIcon />
                       </IconButton>
-                    </Link>
-                    <IconButton
-                      size="sm"
-                      variant="text"
-                      color="red"
-                      onClick={() => handleDelete(todoList.id)}
-                    >
-                      <TrashIcon />
-                    </IconButton>
+                    </Tooltip>
                   </ListItemSuffix>
                 </ListItem>
               ))}

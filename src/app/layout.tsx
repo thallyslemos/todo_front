@@ -4,6 +4,8 @@ import "./globals.css";
 import { StickyNavbar } from "@/components/Navbar";
 import { Suspense } from "react";
 import Loading from "./laoding";
+import Toast from "@/components/Toast";
+import { ToastProvider } from "@/components/ToastProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,9 +21,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} relative`}>
         <StickyNavbar />
-        <Suspense fallback={<Loading />}>{children}</Suspense>
+        <Suspense fallback={<Loading />}>
+          <ToastProvider>{children}</ToastProvider>
+        </Suspense>
       </body>
     </html>
   );
