@@ -5,6 +5,7 @@
 :root {
   --primary: #381A54;
   --secondary: #FF700A;
+  --tertiary: #651da1;
   --orange-gradient: linear-gradient(215deg,  #f12327, #fc7d2f);
  }
 

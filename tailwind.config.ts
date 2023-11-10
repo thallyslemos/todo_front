@@ -14,6 +14,7 @@ const config: Config = withMT({
       colors: {
         primary: "var(--primary)",
         secondary: "var(--secondary)",
+        tertiary: "var(--tertiary)",
       },
       minHeight: { "screen-main": "calc(100vh - 72px)!important" },
 
