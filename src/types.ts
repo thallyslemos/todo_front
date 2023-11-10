@@ -1,14 +1,14 @@
-export type Todo = {
+export type TodoType = {
   id: number;
   title: string;
   completed: boolean;
   description: string;
-  dateLimit?: string;
+  date_limit?: string;
 };
 
-export type TodoList = {
+export type TodoListType = {
   id: number;
   name: string;
   createdAt: string;
-  todos: Todo[];
+  todos: TodoType[];
 };

@@ -1,6 +1,9 @@
 function handleResponse(response: Response) {
   if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    return response.text().then((text) => {
+      let error = new Error(text || `HTTP error! status: ${response.status}`);
+      return error;
+    });
   }
   if (response.statusText === "No Content") {
     return response.text().then((text) => (text ? JSON.parse(text) : {}));
