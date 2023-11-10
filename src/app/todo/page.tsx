@@ -2,7 +2,6 @@
 
 import CustomCard from "@/components/CustomCard";
 import CreateListForm from "@/components/CreateListForm";
-import { todoLists } from "@/utils/constatnts";
 import {
   IconButton,
   List,
