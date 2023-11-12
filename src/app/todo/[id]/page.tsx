@@ -65,7 +65,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
   }, [fetchData]);
 
   return (
-    <main className="min-h-screen-main flex py-10 justify-center">
+    <main className="min-h-screen-main flex py-10 px-2 justify-center">
       <CustomCard title={todoList?.name || "Carregando..."}>
         <div className="flex gap-2 justify-center">
           <Link href="/todo" className="mx-auto mt-2">
@@ -73,7 +73,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
               <IconButton
                 size="sm"
                 variant="outlined"
-                className="border border-secondary text-secondary "
+                className="border border-secondary text-secondary shadow-sm"
               >
                 <GoBackIcon />
               </IconButton>

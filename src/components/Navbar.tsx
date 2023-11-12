@@ -37,7 +37,7 @@ export function StickyNavbar() {
         className="p-1 font-normal"
       >
         <Link href="/todo" className="flex items-center">
-          Todos
+          Listas
         </Link>
       </Typography>
     </ul>
@@ -50,7 +50,7 @@ export function StickyNavbar() {
           href="#"
           className="mr-4 cursor-pointer py-1.5 font-extrabold text-lg text-transparent bg-orange-gradient bg-clip-text"
         >
-          V360 TODOS
+          V360 TODOLIST
         </Typography>
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>

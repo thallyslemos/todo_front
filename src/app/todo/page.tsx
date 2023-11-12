@@ -57,7 +57,7 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
   }, []);
 
   return (
-    <main className="min-h-screen-main flex justify-center py-10">
+    <main className="min-h-screen-main flex justify-center py-10 px-2">
       <CustomCard title="Minhas Listas">
         {loading && (
           <div className="py-10">

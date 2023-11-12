@@ -5,7 +5,7 @@ import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
 export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen-main py-2">
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
+      <main className="flex flex-col items-center justify-center w-full flex-1 p-4 text-center">
         <Typography variant="h2" className="mb-6 text-tertiary font-bold">
           Bem-vindo ao V360 TODOLIST
         </Typography>
