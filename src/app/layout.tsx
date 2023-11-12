@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { StickyNavbar } from "@/components/Navbar";
-import { Suspense } from "react";
-import Loading from "./laoding";
 import Toast from "@/components/Toast";
-import { ToastProvider } from "@/components/ToastProvider";
+import { GlobalProvider } from "@/context/store";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,10 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} relative`}>
-        <StickyNavbar />
-        <Suspense fallback={<Loading />}>
-          <ToastProvider>{children}</ToastProvider>
-        </Suspense>
+        <GlobalProvider>
+          <StickyNavbar />
+          <Toast />
+          {children}
+        </GlobalProvider>
       </body>
     </html>
   );

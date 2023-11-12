@@ -15,7 +15,7 @@ import {
 import { AddIcon, EditIcon } from "@/app/assets/icons";
 import { post, put } from "@/utils/fetchApi";
 import { TodoType } from "@/types";
-import { ToastContext } from "./ToastProvider";
+import { useGlobalContext } from "@/context/store";
 
 type CreateTodoFormProps = {
   onSubmit: () => void;
@@ -24,13 +24,7 @@ type CreateTodoFormProps = {
 };
 
 const TodoForm = ({ onSubmit, listId, todo }: CreateTodoFormProps) => {
-  const toastContext = useContext(ToastContext);
-
-  if (!toastContext) {
-    throw new Error("TodoForm must be used within a ToastProvider");
-  }
-
-  const { setToastData, setShowToast } = toastContext;
+  const { setToastData, setShowToast } = useGlobalContext();
 
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState({

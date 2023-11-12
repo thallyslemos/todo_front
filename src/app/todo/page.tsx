@@ -1,7 +1,6 @@
 "use client";
 
 import CustomCard from "@/components/CustomCard";
-import CreateListForm from "@/components/CreateListForm";
 import {
   IconButton,
   List,
@@ -12,16 +11,16 @@ import {
 } from "@material-tailwind/react";
 import Link from "next/link";
 import { Eye, TrashIcon } from "../assets/icons";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { del, get } from "@/utils/fetchApi";
 import { TodoListType } from "@/types";
-import Toast from "@/components/Toast";
+import ListForm from "@/components/ListForm";
+import { useGlobalContext } from "@/context/store";
 
 export default function TodoPage({ params }: { params: { slug: string } }) {
   const [lists, setList] = useState<TodoListType[]>([]);
   const [loading, setLoading] = useState(true);
-  const [toastData, setToastData] = useState({ message: "", type: "" });
-  const [showToast, setShowToast] = useState(false);
+  const { setToastData, setShowToast } = useGlobalContext();
 
   const fetchData = async () => {
     setLoading(true);
@@ -60,14 +59,6 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
   return (
     <main className="min-h-screen-main flex justify-center py-10">
       <CustomCard title="Minhas Listas">
-        {showToast && (
-          <Toast
-            message={toastData.message}
-            type={toastData.type}
-            interval={5000}
-            onClose={() => setShowToast(false)}
-          />
-        )}
         {loading && (
           <div className="py-10">
             <Spinner color="deep-orange" className="m-auto" />
@@ -75,7 +66,7 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
         )}
         {!loading && (
           <>
-            <CreateListForm onCreate={fetchData} />
+            <ListForm onSubmit={fetchData} />
             <List>
               {lists.map((todoList, index) => (
                 <ListItem key={index}>
@@ -88,6 +79,7 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
                         </IconButton>
                       </Link>
                     </Tooltip>
+                    <ListForm list={todoList} onSubmit={fetchData} />
                     <Tooltip content="Deletar lista">
                       <IconButton
                         size="sm"

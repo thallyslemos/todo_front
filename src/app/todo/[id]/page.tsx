@@ -1,9 +1,5 @@
 "use client";
 
-import TodoForm from "@/components/TodoForm";
-import CustomCard from "@/components/CustomCard";
-import Toast from "@/components/Toast";
-import TodoItem from "@/components/TodoItem";
 import { TodoListType, TodoType } from "@/types";
 import { del, get, put } from "@/utils/fetchApi";
 import {
@@ -12,19 +8,22 @@ import {
   Spinner,
   Tooltip,
 } from "@material-tailwind/react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useContext } from "react";
 import Link from "next/link";
 import { GoBackIcon } from "@/app/assets/icons";
+import { useGlobalContext } from "@/context/store";
+import CustomCard from "@/components/CustomCard";
+import TodoForm from "@/components/TodoForm";
+import TodoItem from "@/components/TodoItem";
 
 export default function TodoPage({ params }: { params: { id: string } }) {
   const [todoList, setTodoList] = useState<TodoListType>();
   const [loading, setLoading] = useState(true);
-  const [toastData, setToastData] = useState({ message: "", type: "" });
-  const [showToast, setShowToast] = useState(false);
+  const { setToastData, setShowToast } = useGlobalContext();
 
   const { id } = params;
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const response = await get(`/todo_lists/${id}`);
@@ -34,53 +33,48 @@ export default function TodoPage({ params }: { params: { id: string } }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const handleDelete = (id: number) => {
-    del(`/todos/${id}`)
-      .then(async (res) => {
-        if (res) {
-          setToastData({
-            message: "Tarefa deletada com sucesso",
-            type: "success",
-          });
-          await fetchData();
-        }
-      })
-      .catch((error) => {
-        console.error("Erro ao deletar tarefa:", error);
-      });
-    setShowToast(false);
-    setTimeout(() => setShowToast(true), 0);
-  };
+  const handleDelete = useCallback(
+    (id: number) => {
+      del(`/todos/${id}`)
+        .then(async (res) => {
+          if (res) {
+            setToastData({
+              message: "Tarefa deletada com sucesso",
+              type: "success",
+            });
+            await fetchData();
+          }
+        })
+        .catch((error) => {
+          console.error("Erro ao deletar tarefa:", error);
+        });
+      setShowToast(false);
+      setTimeout(() => setShowToast(true), 0);
+    },
+    [fetchData, setToastData, setShowToast]
+  );
 
-  const handleUpdate = (data: TodoType) => {
-    put(`/todos/${data.id}`, data).then((res) => {
-      if (res.status === 200) {
-        // fetchData();
-      }
-    });
-  };
+  const handleUpdate = useCallback((data: TodoType) => {
+    put(`/todos/${data.id}`, data);
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   return (
     <main className="min-h-screen-main flex py-10 justify-center">
-      {showToast && (
-        <Toast
-          message={toastData.message}
-          type={toastData.type}
-          interval={5000}
-          onClose={() => setShowToast(false)}
-        />
-      )}
       <CustomCard title={todoList?.name || "Carregando..."}>
         <div className="flex gap-2 justify-center">
           <Link href="/todo" className="mx-auto mt-2">
             <Tooltip color="deep-orange" content="Voltar">
-              <IconButton size="sm" variant="outlined">
+              <IconButton
+                size="sm"
+                variant="outlined"
+                className="border border-secondary text-secondary "
+              >
                 <GoBackIcon />
               </IconButton>
             </Tooltip>

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, ChangeEvent, useContext } from "react";
+import { useState, ChangeEvent } from "react";
 import {
   Button,
   Dialog,
@@ -11,29 +11,35 @@ import {
   IconButton,
   Tooltip,
 } from "@material-tailwind/react";
-import Toast from "./Toast";
-import { AddIcon } from "@/app/assets/icons";
-import { post } from "@/utils/fetchApi";
-import { ToastContext } from "./ToastProvider";
+import { AddIcon, EditIcon } from "@/app/assets/icons";
+import { post, put } from "@/utils/fetchApi";
+import { useGlobalContext } from "@/context/store";
+import { TodoListType } from "@/types";
 
-const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
+type ListFormProps = {
+  onSubmit: () => void;
+  list?: TodoListType;
+};
+
+const ListForm = ({ onSubmit, list }: ListFormProps) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [listName, setListName] = useState("");
-  const toastContext = useContext(ToastContext);
-
-  if (!toastContext) {
-    throw new Error("TodoForm must be used within a ToastProvider");
-  }
-
-  const { setToastData, setShowToast } = toastContext;
+  const [listName, setListName] = useState(list?.name || "");
+  const { setToastData, setShowToast } = useGlobalContext();
 
   const handleOpen = () => setOpenDialog(!openDialog);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) =>
     setListName(e.target.value);
 
-  const handleCreate = () => {
-    setShowToast(false);
-    post("/todo_lists", { name: listName })
+  const handleCancel = () => {
+    setListName(list?.name || "");
+    setOpenDialog(false);
+  };
+
+  const handleSubmit = () => {
+    const method = list ? put : post;
+    const path = list ? `/todo_lists/${list.id}` : "/todo_lists";
+    method(path, { name: listName })
       .then((res) => {
         if (res instanceof Error) {
           let errorMessage = res.message;
@@ -46,32 +52,53 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
             console.error(e);
           }
           setToastData({ message: errorMessage, type: "error" });
-        } else if (res?.status === 201) {
-          setToastData({
-            message: "Lista criada com sucesso",
-            type: "success",
-          });
-          onCreate();
+        } else if (res?.status === 201 || res?.status === 200) {
+          list
+            ? setToastData({
+                message: "Lista atualizada com sucesso",
+                type: "success",
+              })
+            : setToastData({
+                message: "Lista criada com sucesso",
+                type: "success",
+              });
+
+          onSubmit();
         }
       })
       .finally(() => {
-        setTimeout(() => setShowToast(true), 0), setOpenDialog(false);
+        setTimeout(() => setShowToast(true), 0);
+        setOpenDialog(false);
         setListName("");
       });
   };
 
+  const OpenButton = list ? (
+    <IconButton
+      variant="text"
+      color="yellow"
+      size="sm"
+      className="text-yellow-700"
+      onClick={handleOpen}
+    >
+      <EditIcon />
+    </IconButton>
+  ) : (
+    <IconButton
+      color="green"
+      variant="outlined"
+      size="sm"
+      onClick={handleOpen}
+      className="mx-auto mt-2"
+    >
+      <AddIcon />
+    </IconButton>
+  );
+
   return (
     <>
-      <Tooltip content="Criar lista">
-        <IconButton
-          color="green"
-          variant="outlined"
-          size="sm"
-          onClick={handleOpen}
-          className="mx-auto mt-2"
-        >
-          <AddIcon />
-        </IconButton>
+      <Tooltip content={list ? "Editar lista" : "Criar lista"}>
+        {OpenButton}
       </Tooltip>
       <Dialog
         size="xs"
@@ -82,7 +109,7 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
         <Card className="mx-auto y-10 w-full max-w-[24rem]">
           <CardBody className="flex flex-col gap-4">
             <Typography variant="h4" className="text-primary">
-              Nova Lista
+              {list ? "Editar Lista" : "Nova Lista"}
             </Typography>
             <Typography className="text-primary" variant="h6">
               Título da Lista
@@ -100,15 +127,15 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
               <Button
                 color="green"
                 variant="gradient"
-                onClick={handleCreate}
+                onClick={handleSubmit}
                 fullWidth
               >
-                Criar
+                {list ? "Atualizar" : "Criar"}
               </Button>
               <Button
                 color="red"
                 variant="gradient"
-                onClick={handleOpen}
+                onClick={handleCancel}
                 fullWidth
               >
                 Cancelar
@@ -120,4 +147,4 @@ const CreateListForm = ({ onCreate }: { onCreate: () => void }) => {
     </>
   );
 };
-export default CreateListForm;
+export default ListForm;
