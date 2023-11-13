@@ -5,11 +5,19 @@ import {
   Typography,
   IconButton,
   Collapse,
+  Tooltip,
 } from "@material-tailwind/react";
 import Link from "next/link";
+import { useGlobalContext } from "@/context/store";
+import { LogOUtIcon } from "@/app/assets/icons";
 
 export function StickyNavbar() {
   const [openNav, setOpenNav] = React.useState(false);
+  const { isLogged, logout } = useGlobalContext();
+
+  const handleLogout = () => {
+    logout();
+  };
 
   React.useEffect(() => {
     window.addEventListener(
@@ -30,16 +38,42 @@ export function StickyNavbar() {
           Home
         </Link>
       </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="white"
-        className="p-1 font-normal"
-      >
-        <Link href="/todo" className="flex items-center">
-          Listas
-        </Link>
-      </Typography>
+      {!isLogged() && (
+         <Typography
+         as="li"
+         variant="small"
+         color="white"
+         className="p-1 font-normal"
+       >
+         <Link href="/login" className="flex items-center">
+           Login
+         </Link>
+       </Typography>
+      )}
+      {isLogged() && (
+        <>
+          <Typography
+            as="li"
+            variant="small"
+            color="white"
+            className="p-1 font-normal"
+          >
+            <Link href="/todo" className="flex items-center">
+              Listas
+            </Link>
+          </Typography>
+          <Tooltip content="Sair">
+            <IconButton
+              size="sm"
+              variant="text"
+              className="text-secondary "
+              onClick={() => handleLogout()}
+            >
+              <LogOUtIcon />
+            </IconButton>
+          </Tooltip>
+        </>
+      )}
     </ul>
   );
 

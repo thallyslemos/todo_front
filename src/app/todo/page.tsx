@@ -16,11 +16,26 @@ import { del, get } from "@/utils/fetchApi";
 import { TodoListType } from "@/types";
 import ListForm from "@/components/ListForm";
 import { useGlobalContext } from "@/context/store";
+import { useRouter } from "next/navigation";
 
 export default function TodoPage({ params }: { params: { slug: string } }) {
   const [lists, setList] = useState<TodoListType[]>([]);
   const [loading, setLoading] = useState(true);
-  const { setToastData, setShowToast } = useGlobalContext();
+  const { setToastData, setShowToast, isLogged } = useGlobalContext();
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLogged()) {
+      setToastData({
+        message: "Você precisa estar logado para acessar essa página",
+        type: "error",
+      });
+      router.push("/");
+      setShowToast(false);
+      setTimeout(() => setShowToast(true), 0);
+    }
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -58,45 +73,47 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
 
   return (
     <main className="min-h-screen-main flex justify-center py-10 px-2">
-      <CustomCard title="Minhas Listas">
-        {loading && (
-          <div className="py-10">
-            <Spinner color="deep-orange" className="m-auto" />
-          </div>
-        )}
-        {!loading && (
-          <>
-            <ListForm onSubmit={fetchData} />
-            <List>
-              {lists.map((todoList, index) => (
-                <ListItem key={index}>
-                  {todoList.name}
-                  <ListItemSuffix className="flex gap-2">
-                    <Tooltip content="Ver lista">
-                      <Link href={`/todo/${todoList.id}`}>
-                        <IconButton size="sm" variant="text" color="blue">
-                          <Eye />
+      {isLogged() && (
+        <CustomCard title="Minhas Listas">
+          {loading && (
+            <div className="py-10">
+              <Spinner color="deep-orange" className="m-auto" />
+            </div>
+          )}
+          {!loading && (
+            <>
+              <ListForm onSubmit={fetchData} />
+              <List>
+                {lists.map((todoList, index) => (
+                  <ListItem key={index}>
+                    {todoList.name}
+                    <ListItemSuffix className="flex gap-2">
+                      <Tooltip content="Ver lista">
+                        <Link href={`/todo/${todoList.id}`}>
+                          <IconButton size="sm" variant="text" color="blue">
+                            <Eye />
+                          </IconButton>
+                        </Link>
+                      </Tooltip>
+                      <ListForm list={todoList} onSubmit={fetchData} />
+                      <Tooltip content="Deletar lista">
+                        <IconButton
+                          size="sm"
+                          variant="text"
+                          color="red"
+                          onClick={() => handleDelete(todoList.id)}
+                        >
+                          <TrashIcon />
                         </IconButton>
-                      </Link>
-                    </Tooltip>
-                    <ListForm list={todoList} onSubmit={fetchData} />
-                    <Tooltip content="Deletar lista">
-                      <IconButton
-                        size="sm"
-                        variant="text"
-                        color="red"
-                        onClick={() => handleDelete(todoList.id)}
-                      >
-                        <TrashIcon />
-                      </IconButton>
-                    </Tooltip>
-                  </ListItemSuffix>
-                </ListItem>
-              ))}
-            </List>
-          </>
-        )}
-      </CustomCard>
+                      </Tooltip>
+                    </ListItemSuffix>
+                  </ListItem>
+                ))}
+              </List>
+            </>
+          )}
+        </CustomCard>
+      )}
     </main>
   );
 }

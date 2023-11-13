@@ -10,8 +10,8 @@ import {
   Input,
   Checkbox,
 } from "@material-tailwind/react";
-import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
   const { setUserData, setToken, token, setShowToast, setToastData } =
@@ -19,6 +19,8 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
@@ -46,6 +48,7 @@ const LoginForm = () => {
           setUserData(res.data.user);
           setToken(res.data.token);
           setToastData({ message: "Login feito com sucesso", type: "success" });
+          router.push("/");
         }
       })
       .catch((error) => {

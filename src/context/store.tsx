@@ -9,6 +9,7 @@ import {
   ReactNode,
   useEffect,
 } from "react";
+import { useRouter } from "next/navigation";
 
 type ToastData = {
   message: string;
@@ -31,6 +32,7 @@ interface ContextProps {
   token: string;
   setToken: Dispatch<SetStateAction<string>>;
   logout: () => void;
+  isLogged: () => boolean;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -43,6 +45,7 @@ const GlobalContext = createContext<ContextProps>({
   token: "",
   setToken: () => {},
   logout: () => {},
+  isLogged: () => false,
 });
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
@@ -62,15 +65,26 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   });
   const [token, setToken] = useState("");
 
+  const router = useRouter();
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && userData.id !== 0) {
       window.localStorage.setItem("userData", JSON.stringify(userData));
     }
   }, [userData]);
 
   const logout = () => {
-    setUserData({ id: 0, name: null, email: "" });
     window.localStorage.removeItem("userData");
+    router.push('/');
+    router.refresh();
+  };
+
+  const isLogged = () => {
+    const localData = window.localStorage.getItem("userData");
+    if (localData) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -85,6 +99,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         token,
         setToken,
         logout,
+        isLogged,
       }}
     >
       {children}

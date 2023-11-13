@@ -15,13 +15,28 @@ import { useGlobalContext } from "@/context/store";
 import CustomCard from "@/components/CustomCard";
 import TodoForm from "@/components/TodoForm";
 import TodoItem from "@/components/TodoItem";
+import { useRouter } from "next/navigation";
 
 export default function TodoPage({ params }: { params: { id: string } }) {
   const [todoList, setTodoList] = useState<TodoListType>();
   const [loading, setLoading] = useState(true);
-  const { setToastData, setShowToast } = useGlobalContext();
+  const { setToastData, setShowToast, isLogged } = useGlobalContext();
 
   const { id } = params;
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isLogged()) {
+      setToastData({
+        message: "Você precisa estar logado para acessar essa página",
+        type: "error",
+      });
+      router.push("/");
+      setShowToast(false);
+      setTimeout(() => setShowToast(true), 0);
+    }
+  }, []);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -66,42 +81,47 @@ export default function TodoPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="min-h-screen-main flex py-10 px-2 justify-center">
-      <CustomCard title={todoList?.name || "Carregando..."}>
-        <div className="flex gap-2 justify-center">
-          <Link href="/todo" className="mx-auto mt-2">
-            <Tooltip color="deep-orange" content="Voltar">
-              <IconButton
-                size="sm"
-                variant="outlined"
-                className="border border-secondary text-secondary shadow-sm"
-              >
-                <GoBackIcon />
-              </IconButton>
-            </Tooltip>
-          </Link>
-          <TodoForm onSubmit={fetchData} listId={todoList?.id || Number(id)} />
-        </div>
-        {loading && (
-          <div className="py-10">
-            <Spinner color="deep-orange" className="m-auto" />
+      {isLogged() && (
+        <CustomCard title={todoList?.name || "Carregando..."}>
+          <div className="flex gap-2 justify-center">
+            <Link href="/todo" className="mx-auto mt-2">
+              <Tooltip color="deep-orange" content="Voltar">
+                <IconButton
+                  size="sm"
+                  variant="outlined"
+                  className="border border-secondary text-secondary shadow-sm"
+                >
+                  <GoBackIcon />
+                </IconButton>
+              </Tooltip>
+            </Link>
+            <TodoForm
+              onSubmit={fetchData}
+              listId={todoList?.id || Number(id)}
+            />
           </div>
-        )}
-        {!loading && (
-          <CardBody className="overflow-y-auto max-h-full">
-            <section className="flex flex-col my-3 gap-2 ">
-              {todoList?.todos.map((todo, index) => (
-                <TodoItem
-                  onDelete={handleDelete}
-                  checkChange={handleUpdate}
-                  onUpdate={fetchData}
-                  key={index}
-                  todo={todo}
-                />
-              ))}
-            </section>
-          </CardBody>
-        )}
-      </CustomCard>
+          {loading && (
+            <div className="py-10">
+              <Spinner color="deep-orange" className="m-auto" />
+            </div>
+          )}
+          {!loading && (
+            <CardBody className="overflow-y-auto max-h-full">
+              <section className="flex flex-col my-3 gap-2 ">
+                {todoList?.todos.map((todo, index) => (
+                  <TodoItem
+                    onDelete={handleDelete}
+                    checkChange={handleUpdate}
+                    onUpdate={fetchData}
+                    key={index}
+                    todo={todo}
+                  />
+                ))}
+              </section>
+            </CardBody>
+          )}
+        </CustomCard>
+      )}
     </main>
   );
 }

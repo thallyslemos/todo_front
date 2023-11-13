@@ -1,89 +1,163 @@
 "use client";
+import { useGlobalContext } from "@/context/store";
+import { post } from "@/utils/fetchApi";
 import {
+  Button,
   Card,
+  CardBody,
+  CardFooter,
+  Typography,
   Input,
   Checkbox,
-  Button,
-  Typography,
 } from "@material-tailwind/react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 
 const SignUpForm = () => {
-  return (
-    <Card color="transparent" shadow={false}>
-      <Typography variant="h4">Login</Typography>
-      <Typography color="gray" className="mt-1 font-normal">
-        Nice to meet you! Enter your details to register.
-      </Typography>
-      <form className="mt-8 mb-2 w-80 max-w-screen-lg sm:w-96">
-        <div className="mb-1 flex flex-col gap-6">
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Your Name
-          </Typography>
-          <Input
-            crossOrigin={undefined}
-            size="lg"
-            placeholder="name@mail.com"
-            className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
-          />
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Your Email
-          </Typography>
-          <Input
-            crossOrigin={undefined}
-            size="lg"
-            placeholder="name@mail.com"
-            className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
-          />
-          <Typography variant="h6" color="blue-gray" className="-mb-3">
-            Password
-          </Typography>
-          <Input
-            crossOrigin={undefined}
-            type="password"
-            size="lg"
-            placeholder="********"
-            className=" !border-t-blue-gray-200 focus:!border-t-gray-900"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
-          />
-        </div>
-        <Checkbox
-          crossOrigin={undefined}
-          label={
-            <Typography
-              variant="small"
-              color="gray"
-              className="flex items-center font-normal"
-            >
-              I agree the
-              <a
-                href="#"
-                className="font-medium transition-colors hover:text-gray-900"
-              >
-                &nbsp;Terms and Conditions
-              </a>
-            </Typography>
+  const { setShowToast, setToastData } = useGlobalContext();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [name, setName] = useState("");
+
+  const router = useRouter();
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    setLoading(true);
+    event.preventDefault();
+
+    const loginData = {
+      user: { email: email, name: name, password: password },
+    };
+
+    post("/users", loginData)
+      .then((res) => {
+        if (res instanceof Error) {
+          // ajustar formatação da mensagem de erro
+          let errorMessage = res.message;
+          try {
+            const errorObject = JSON.parse(errorMessage);
+            if (errorObject.error) {
+              errorMessage = errorObject.error;
+            }
+          } catch (e) {
+            console.error(e);
           }
-          containerProps={{ className: "-ml-2.5" }}
-        />
-        <Button className="mt-6" fullWidth>
-          sign up
-        </Button>
-        <Typography color="gray" className="mt-4 text-center font-normal">
-          Already have an account?{" "}
-          <a href="#" className="font-medium text-gray-900">
-            Sign In
-          </a>
-        </Typography>
-      </form>
-    </Card>
+          setToastData({ message: errorMessage, type: "error" });
+        } else if (res.status === 201) {
+          setToastData({
+            message: "Cadastro realizado com sucesso",
+            type: "success",
+          });
+          router.push("/login");
+        }
+      })
+      .catch((error) => {
+        setToastData({
+          message: "Erro ao fazer login",
+          type: "error",
+        });
+      })
+      .finally(() => {
+        setShowToast(false);
+        setTimeout(() => setShowToast(true), 0);
+        setLoading(false);
+      });
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Card className="mx-auto w-full max-w-[24rem] text-primary">
+        <CardBody className="flex flex-col gap-4">
+          <Typography variant="h4" className="text-center text-tertiary">
+            Cadastro
+          </Typography>
+          <Typography className="mb-3 font-normal" variant="paragraph">
+            Criei sua conta.
+          </Typography>
+          <Typography className="-mb-2" variant="h6">
+            Seu Nome
+          </Typography>
+          <Input
+            color="deep-purple"
+            crossOrigin={undefined}
+            label="Nome"
+            size="md"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <Typography className="-mb-2" variant="h6">
+            Seu Email
+          </Typography>
+          <Input
+            color="deep-purple"
+            crossOrigin={undefined}
+            label="Email"
+            size="md"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Typography className="-mb-2" variant="h6">
+            Sua Senha
+          </Typography>
+          <Input
+            color="deep-purple"
+            crossOrigin={undefined}
+            label="Senha"
+            size="md"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Typography className="-mb-2" variant="h6">
+            Confirmar senha
+          </Typography>
+          <Input
+            color="deep-purple"
+            crossOrigin={undefined}
+            label="Confirme a senha"
+            size="md"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+          <div className="-ml-2.5 -mt-3">
+            {/* implmetar cookies */}
+            <Checkbox
+              color="deep-purple"
+              crossOrigin={undefined}
+              label="Quero continuar logado"
+            />
+          </div>
+        </CardBody>
+        <CardFooter className="pt-0">
+          <Button
+            variant="gradient"
+            className="bg-orange-gradient"
+            type="submit"
+            fullWidth
+            disabled={loading}
+          >
+            Cadastrar
+          </Button>
+          <Typography variant="small" className="mt-4 flex justify-center">
+            Ainda não tem uma conta?
+            <Typography
+              as="a"
+              href="/login"
+              variant="small"
+              color="deep-purple"
+              className="ml-1 font-bold"
+            >
+              Fazer login
+            </Typography>
+          </Typography>
+        </CardFooter>
+      </Card>
+    </form>
   );
 };
+
 export default SignUpForm;
