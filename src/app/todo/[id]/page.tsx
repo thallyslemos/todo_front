@@ -27,7 +27,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
     setLoading(true);
     try {
       const response = await get(`/todo_lists/${id}`);
-      setTodoList(response);
+      setTodoList(response.data);
     } catch (error) {
       console.error(error);
     } finally {

@@ -26,7 +26,7 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
     setLoading(true);
     try {
       const response = await get(`/todo_lists`);
-      setList(response);
+      setList(response.data);
     } catch (error) {
       console.error(error);
     } finally {
