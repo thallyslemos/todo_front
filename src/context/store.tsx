@@ -7,6 +7,7 @@ import {
   SetStateAction,
   useState,
   ReactNode,
+  useEffect,
 } from "react";
 
 type ToastData = {
@@ -29,6 +30,7 @@ interface ContextProps {
   setUserData: Dispatch<SetStateAction<UserData>>;
   token: string;
   setToken: Dispatch<SetStateAction<string>>;
+  logout: () => void;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -40,6 +42,7 @@ const GlobalContext = createContext<ContextProps>({
   setUserData: () => {},
   token: "",
   setToken: () => {},
+  logout: () => {},
 });
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
@@ -48,12 +51,27 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     type: "",
   });
   const [showToast, setShowToast] = useState(false);
-  const [userData, setUserData] = useState<UserData>({
-    id: 0,
-    name: null,
-    email: "",
+  const [userData, setUserData] = useState<UserData>(() => {
+    if (typeof window !== "undefined") {
+      const localData = window.localStorage.getItem("userData");
+      return localData
+        ? JSON.parse(localData)
+        : { id: 0, name: null, email: "" };
+    }
+    return { id: 0, name: null, email: "" };
   });
   const [token, setToken] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem("userData", JSON.stringify(userData));
+    }
+  }, [userData]);
+
+  const logout = () => {
+    setUserData({ id: 0, name: null, email: "" });
+    window.localStorage.removeItem("userData");
+  };
 
   return (
     <GlobalContext.Provider
@@ -66,6 +84,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         setUserData,
         token,
         setToken,
+        logout,
       }}
     >
       {children}
