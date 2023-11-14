@@ -26,6 +26,16 @@ const LoginForm = () => {
     setLoading(true);
     event.preventDefault();
 
+    if (!email || !password) {
+      setToastData({
+        message: "Todos os campos são obrigatórios",
+        type: "error",
+      });
+      setShowToast(true);
+      setLoading(false);
+      return;
+    }
+
     const loginData = {
       email: email,
       password: password,

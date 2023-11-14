@@ -7,6 +7,7 @@ import {
   IconButton,
   Spinner,
   Tooltip,
+  Typography,
 } from "@material-tailwind/react";
 import { useEffect, useState, useCallback, useContext } from "react";
 import Link from "next/link";
@@ -108,7 +109,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
           {!loading && (
             <CardBody className="overflow-y-auto max-h-full">
               <section className="flex flex-col my-3 gap-2 ">
-                {todoList &&
+                {todoList?.todos &&
                   todoList?.todos.map((todo, index) => (
                     <TodoItem
                       onDelete={handleDelete}
@@ -118,6 +119,11 @@ export default function TodoPage({ params }: { params: { id: string } }) {
                       todo={todo}
                     />
                   ))}
+                {todoList?.todos?.length === 0 && (
+                  <Typography color="gray" className="text-center">
+                    Ainda não há itens nessa lista
+                  </Typography>
+                )}
               </section>
             </CardBody>
           )}

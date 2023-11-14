@@ -2,12 +2,14 @@
 
 import CustomCard from "@/components/CustomCard";
 import {
+  CardBody,
   IconButton,
   List,
   ListItem,
   ListItemSuffix,
   Spinner,
   Tooltip,
+  Typography,
 } from "@material-tailwind/react";
 import Link from "next/link";
 import { Eye, TrashIcon } from "../assets/icons";
@@ -75,46 +77,49 @@ export default function TodoPage({ params }: { params: { slug: string } }) {
     <main className="min-h-screen-main flex justify-center py-10 px-2">
       {isLoggedIn && (
         <CustomCard title="Minhas Listas">
+          <ListForm onSubmit={fetchData} />
           {loading && (
             <div className="py-10">
               <Spinner color="deep-orange" className="m-auto" />
             </div>
           )}
-          {!loading && (
-            <>
-              <ListForm onSubmit={fetchData} />
+          <CardBody className="overflow-y-auto max-h-full">
+            {!loading && (
               <List>
-                <>
-                  {lists &&
-                    lists.map((todoList, index) => (
-                      <ListItem key={index}>
-                        {todoList.name}
-                        <ListItemSuffix className="flex gap-2">
-                          <Tooltip content="Ver lista">
-                            <Link href={`/todo/${todoList.id}`}>
-                              <IconButton size="sm" variant="text" color="blue">
-                                <Eye />
-                              </IconButton>
-                            </Link>
-                          </Tooltip>
-                          <ListForm list={todoList} onSubmit={fetchData} />
-                          <Tooltip content="Deletar lista">
-                            <IconButton
-                              size="sm"
-                              variant="text"
-                              color="red"
-                              onClick={() => handleDelete(todoList.id)}
-                            >
-                              <TrashIcon />
+                {lists?.length > 0 &&
+                  lists.map((todoList, index) => (
+                    <ListItem key={index} className="bg-white/50 backdrop-blur-sm shadow-sm">
+                      {todoList.name}
+                      <ListItemSuffix className="flex gap-2">
+                        <Tooltip content="Ver lista">
+                          <Link href={`/todo/${todoList.id}`}>
+                            <IconButton size="sm" variant="text" color="blue">
+                              <Eye />
                             </IconButton>
-                          </Tooltip>
-                        </ListItemSuffix>
-                      </ListItem>
-                    ))}
-                </>
+                          </Link>
+                        </Tooltip>
+                        <ListForm list={todoList} onSubmit={fetchData} />
+                        <Tooltip content="Deletar lista">
+                          <IconButton
+                            size="sm"
+                            variant="text"
+                            color="red"
+                            onClick={() => handleDelete(todoList.id)}
+                          >
+                            <TrashIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </ListItemSuffix>
+                    </ListItem>
+                  ))}
+                {lists?.length === 0 && (
+                  <Typography color="gray" className="text-center">
+                    Nenhuma lista encontrada
+                  </Typography>
+                )}
               </List>
-            </>
-          )}
+            )}
+          </CardBody>
         </CustomCard>
       )}
     </main>

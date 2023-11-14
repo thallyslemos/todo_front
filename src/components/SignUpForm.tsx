@@ -13,7 +13,6 @@ import {
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-
 const SignUpForm = () => {
   const { setShowToast, setToastData } = useGlobalContext();
   const [loading, setLoading] = useState(false);
@@ -21,12 +20,34 @@ const SignUpForm = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [name, setName] = useState("");
+  const [terms, setTerms] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent) => {
-    setLoading(true);
     event.preventDefault();
+
+    if (!email || !password || !confirmPassword || !name || !terms) {
+      setToastData({
+        message: "Todos os campos são obrigatórios",
+        type: "error",
+      });
+      setShowToast(true);
+      setLoading(false);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setToastData({
+        message: "A senha e a confirmação de senha devem ser iguais",
+        type: "error",
+      });
+      setShowToast(true);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
 
     const loginData = {
       user: { email: email, name: name, password: password },
@@ -69,7 +90,7 @@ const SignUpForm = () => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <Card className="mx-auto w-full max-w-[24rem] text-primary">
+      <Card className="mx-auto w-full max-w-lg text-primary">
         <CardBody className="flex flex-col gap-4">
           <Typography variant="h4" className="text-center text-tertiary">
             Cadastro
@@ -124,11 +145,12 @@ const SignUpForm = () => {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
           <div className="-ml-2.5 -mt-3">
-            {/* implmetar cookies */}
             <Checkbox
               color="deep-purple"
               crossOrigin={undefined}
-              label="Quero continuar logado"
+              label="Aceito os termos de uso"
+              checked={terms}
+              onChange={(e) => setTerms(e.target.checked)}
             />
           </div>
         </CardBody>
