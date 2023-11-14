@@ -1,44 +1,45 @@
-"use cleint";
+"use client";
 import { CheckIcon, ExclamationIcon } from "@/app/assets/icons";
+import { useGlobalContext } from "@/context/store";
 import { Alert, Typography } from "@material-tailwind/react";
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
-type ToastProps = {
-  message: string;
-  type: string;
-  interval?: number;
-  onClose: () => void;
-};
-
-const Toast = ({ message, type, interval = 5000, onClose }: ToastProps) => {
-  const timeoutRef = useRef<NodeJS.Timeout>();
+const Toast = () => {
+  const { toastData, setShowToast, showToast } = useGlobalContext();
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => {
-      onClose();
-    }, interval);
+    if (showToast) {
+      const timeout = setTimeout(() => {
+        setShowToast(false);
+      }, 3000);
 
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [interval, onClose]);
+      return () => {
+        clearTimeout(timeout);
+      };
+    }
+  }, [showToast, setShowToast]);
+
+  if (!showToast) {
+    return null;
+  }
 
   return (
-    <Alert
-      animate={{
-        mount: { y: 0 },
-        unmount: { y: 100 },
-      }}
-      icon={type === "success" ? <CheckIcon /> : <ExclamationIcon />}
-      className={`z-50 flex justify-center m-5 fixed top-0 max-w-xs ${
-        type === "success" ? "bg-green-500" : "bg-red-500"
-      }`}
-    >
-      <Typography color="white">{message}</Typography>
-    </Alert>
+    <div className="flex w-full justify-center">
+      <Alert
+        animate={{
+          mount: { y: 0 },
+          unmount: { y: 100 },
+        }}
+        icon={
+          toastData.type === "success" ? <CheckIcon /> : <ExclamationIcon />
+        }
+        className={`z-50 flex mt-5 mx-auto fixed top-0 max-w-xs ${
+          toastData.type === "success" ? "bg-green-500" : "bg-red-500"
+        }`}
+      >
+        <Typography color="white">{toastData.message}</Typography>
+      </Alert>
+    </div>
   );
 };
-
 export default Toast;

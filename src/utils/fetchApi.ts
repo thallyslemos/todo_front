@@ -1,4 +1,11 @@
-const baseURL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
+const baseURL = process.env.NEXT_PUBLIC_API_URLn || "http://localhost:3000";
+
+function getToken() {
+  if (typeof window !== "undefined") {
+    return sessionStorage.getItem("token");
+  }
+  return null;
+}
 
 function handleResponse(response: Response) {
   if (!response.ok) {
@@ -15,22 +22,37 @@ function handleResponse(response: Response) {
 }
 
 function get(path: string) {
-  return fetch(`${baseURL}${path}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return response.json();
-    })
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  const token = getToken();
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
+  return fetch(`${baseURL}${path}`, {
+    headers,
+  })
+    .then(handleResponse)
     .catch((error) => console.error(error));
 }
 
 function post(path: string, data: object) {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  const token = getToken();
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   return fetch(`${baseURL}${path}`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(data),
   })
     .then(handleResponse)
@@ -38,12 +60,19 @@ function post(path: string, data: object) {
 }
 
 function put(path: string, data: object) {
-  console.error(data);
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  const token = getToken();
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   return fetch(`${baseURL}${path}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers,
     body: JSON.stringify(data),
   })
     .then(handleResponse)
@@ -51,11 +80,21 @@ function put(path: string, data: object) {
 }
 
 function del(path: string) {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  const token = getToken();
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   return fetch(`${baseURL}${path}`, {
     method: "DELETE",
+    headers,
   })
     .then(handleResponse)
     .catch((error) => console.error(error));
 }
-
 export { get, post, put, del };

@@ -1,21 +1,37 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   Typography,
   IconButton,
   Collapse,
+  Tooltip,
 } from "@material-tailwind/react";
 import Link from "next/link";
+import { useGlobalContext } from "@/context/store";
+import { LogOUtIcon, UserIcon } from "@/app/assets/icons";
 
-export function StickyNavbar() {
-  const [openNav, setOpenNav] = React.useState(false);
+const StickyNavbar = () => {
+  const [openNav, setOpenNav] = useState(false);
 
-  React.useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setOpenNav(false)
-    );
+  const { isLoggedIn, logout, userData } = useGlobalContext();
+
+  const handleLogout = () => {
+    logout();
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 960) {
+        setOpenNav(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   const navList = (
@@ -30,16 +46,52 @@ export function StickyNavbar() {
           Home
         </Link>
       </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="white"
-        className="p-1 font-normal"
-      >
-        <Link href="/todo" className="flex items-center">
-          Todos
-        </Link>
-      </Typography>
+      {!isLoggedIn && (
+        <Typography
+          as="li"
+          variant="small"
+          color="white"
+          className="p-1 font-normal"
+        >
+          <Link href="/login" className="flex items-center">
+            Login
+          </Link>
+        </Typography>
+      )}
+      {isLoggedIn && (
+        <>
+          <Typography
+            as="li"
+            variant="small"
+            color="white"
+            className="p-1 font-normal"
+          >
+            <Link href="/todo" className="flex items-center">
+              Listas
+            </Link>
+          </Typography>
+          <Typography
+            as="li"
+            variant="small"
+            color="white"
+            className="p-1 font-normal flex gap-2"
+          >
+            {" "}
+            <UserIcon />
+            {userData.name}
+          </Typography>
+          <Tooltip content="Sair">
+            <IconButton
+              size="sm"
+              variant="text"
+              className="text-secondary "
+              onClick={() => handleLogout()}
+            >
+              <LogOUtIcon />
+            </IconButton>
+          </Tooltip>
+        </>
+      )}
     </ul>
   );
 
@@ -50,7 +102,7 @@ export function StickyNavbar() {
           href="#"
           className="mr-4 cursor-pointer py-1.5 font-extrabold text-lg text-transparent bg-orange-gradient bg-clip-text"
         >
-          V360 TODOS
+          V360 TODOLIST
         </Typography>
         <div className="flex items-center gap-4">
           <div className="mr-4 hidden lg:block">{navList}</div>
@@ -97,4 +149,5 @@ export function StickyNavbar() {
       <Collapse open={openNav}>{navList}</Collapse>
     </Navbar>
   );
-}
+};
+export default StickyNavbar;

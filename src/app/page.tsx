@@ -1,13 +1,17 @@
 "use client";
 import Link from "next/link";
 import { Button, Card, CardBody, Typography } from "@material-tailwind/react";
+import { useGlobalContext } from "@/context/store";
 
 export default function Home() {
+  const { isLoggedIn, userData } = useGlobalContext();
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen-main py-2">
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
+      <main className="flex flex-col items-center justify-center w-full flex-1 p-4 text-center">
         <Typography variant="h2" className="mb-6 text-tertiary font-bold">
           Bem-vindo ao V360 TODOLIST
+          {userData.name && `, ${userData?.name?.toUpperCase()}`}
         </Typography>
 
         <Typography variant="h5" className="mb-6">
@@ -46,9 +50,16 @@ export default function Home() {
         </Card>
 
         <div className="flex mt-6">
-          <Link href="/todo" passHref>
-            <Button className="bg-orange-gradient">Começar</Button>
-          </Link>
+          {isLoggedIn && (
+            <Link href="/todo" passHref>
+              <Button className="bg-orange-gradient">Começar</Button>
+            </Link>
+          )}
+          {!isLoggedIn && (
+            <Link href="/login" passHref>
+              <Button className="bg-orange-gradient">Fazer login</Button>
+            </Link>
+          )}
         </div>
       </main>
     </div>
