@@ -45,8 +45,11 @@ const ListForm = ({ onSubmit, list }: ListFormProps) => {
           let errorMessage = res.message;
           try {
             const errorObject = JSON.parse(errorMessage);
-            if (errorObject.name && errorObject.name[0]) {
-              errorMessage = errorObject.name[0];
+            if (errorObject.error) {
+              errorMessage = errorObject.error;
+            }
+            if (errorObject.name) {
+              errorMessage = errorObject.name;
             }
           } catch (e) {
             console.error(e);
