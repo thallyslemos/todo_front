@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   Navbar,
   Typography,
@@ -9,23 +9,31 @@ import {
 } from "@material-tailwind/react";
 import Link from "next/link";
 import { useGlobalContext } from "@/context/store";
-import { LogOUtIcon } from "@/app/assets/icons";
+import { LogOUtIcon, UserIcon } from "@/app/assets/icons";
 
-export function StickyNavbar() {
-  const [openNav, setOpenNav] = React.useState(false);
-  const { isLogged, logout } = useGlobalContext();
+const StickyNavbar = () => {
+  const [openNav, setOpenNav] = useState(false);
+
+  const { isLoggedIn, logout, userData } = useGlobalContext();
 
   const handleLogout = () => {
     logout();
   };
 
-  React.useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => window.innerWidth >= 960 && setOpenNav(false)
-    );
-  }, []);
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 960) {
+        setOpenNav(false);
+      }
+    };
 
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+  console.log(isLoggedIn);
   const navList = (
     <ul className="mt-2 mb-4 flex flex-col gap-2 lg:mb-0 lg:mt-0 lg:flex-row lg:items-center lg:gap-6">
       <Typography
@@ -38,19 +46,19 @@ export function StickyNavbar() {
           Home
         </Link>
       </Typography>
-      {!isLogged() && (
-         <Typography
-         as="li"
-         variant="small"
-         color="white"
-         className="p-1 font-normal"
-       >
-         <Link href="/login" className="flex items-center">
-           Login
-         </Link>
-       </Typography>
+      {!isLoggedIn && (
+        <Typography
+          as="li"
+          variant="small"
+          color="white"
+          className="p-1 font-normal"
+        >
+          <Link href="/login" className="flex items-center">
+            Login
+          </Link>
+        </Typography>
       )}
-      {isLogged() && (
+      {isLoggedIn && (
         <>
           <Typography
             as="li"
@@ -61,6 +69,16 @@ export function StickyNavbar() {
             <Link href="/todo" className="flex items-center">
               Listas
             </Link>
+          </Typography>
+          <Typography
+            as="li"
+            variant="small"
+            color="white"
+            className="p-1 font-normal flex gap-2"
+          >
+            {" "}
+            <UserIcon />
+            {userData.name}
           </Typography>
           <Tooltip content="Sair">
             <IconButton
@@ -131,4 +149,5 @@ export function StickyNavbar() {
       <Collapse open={openNav}>{navList}</Collapse>
     </Navbar>
   );
-}
+};
+export default StickyNavbar;

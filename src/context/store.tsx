@@ -10,6 +10,7 @@ import {
   useEffect,
 } from "react";
 import { useRouter } from "next/navigation";
+import NoSSRWrapper from "@/components/NoSSRWrapper";
 
 type ToastData = {
   message: string;
@@ -32,7 +33,8 @@ interface ContextProps {
   token: string;
   setToken: Dispatch<SetStateAction<string>>;
   logout: () => void;
-  isLogged: () => boolean;
+  isLoggedIn: boolean;
+  setIsLoggedIn: Dispatch<SetStateAction<boolean>>;
 }
 
 const GlobalContext = createContext<ContextProps>({
@@ -45,7 +47,8 @@ const GlobalContext = createContext<ContextProps>({
   token: "",
   setToken: () => {},
   logout: () => {},
-  isLogged: () => false,
+  isLoggedIn: false,
+  setIsLoggedIn: () => {},
 });
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
@@ -53,38 +56,46 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     message: "",
     type: "",
   });
+
   const [showToast, setShowToast] = useState(false);
+
   const [userData, setUserData] = useState<UserData>(() => {
     if (typeof window !== "undefined") {
-      const localData = window.localStorage.getItem("userData");
+      const localData = window.sessionStorage.getItem("userData");
       return localData
         ? JSON.parse(localData)
         : { id: 0, name: null, email: "" };
     }
-    return { id: 0, name: null, email: "" };
+    return { id: null, name: null, email: null };
   });
-  const [token, setToken] = useState("");
+
+  const [token, setToken] = useState(() => {
+    if (typeof window !== "undefined") {
+      const localData = window.sessionStorage.getItem("token");
+      return localData ? localData : "";
+    }
+    return "";
+  });
+
+  const [isLoggedIn, setIsLoggedIn] = useState(!!token);
 
   const router = useRouter();
 
   useEffect(() => {
     if (typeof window !== "undefined" && userData.id !== 0) {
-      window.localStorage.setItem("userData", JSON.stringify(userData));
+      window.sessionStorage.setItem("userData", JSON.stringify(userData));
+      window.sessionStorage.setItem("token", token);
     }
-  }, [userData]);
+  }, [userData, token]);
 
   const logout = () => {
-    window.localStorage.removeItem("userData");
-    router.push('/');
-    router.refresh();
-  };
-
-  const isLogged = () => {
-    const localData = window.localStorage.getItem("userData");
-    if (localData) {
-      return true;
-    }
-    return false;
+    window.sessionStorage.removeItem("userData");
+    window.sessionStorage.removeItem("token");
+    setUserData({ id: 0, name: null, email: "" });
+    setToken("");
+    setIsLoggedIn(false);
+    router.push("/");
+    // router.refresh();
   };
 
   return (
@@ -99,10 +110,11 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         token,
         setToken,
         logout,
-        isLogged,
+        isLoggedIn,
+        setIsLoggedIn,
       }}
     >
-      {children}
+      <NoSSRWrapper>{children}</NoSSRWrapper>
     </GlobalContext.Provider>
   );
 };

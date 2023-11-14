@@ -14,7 +14,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const LoginForm = () => {
-  const { setUserData, setToken, token, setShowToast, setToastData } =
+  const { setUserData, setToken, setShowToast, setToastData, setIsLoggedIn } =
     useGlobalContext();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
@@ -47,11 +47,13 @@ const LoginForm = () => {
         } else if (res.status === 200) {
           setUserData(res.data.user);
           setToken(res.data.token);
+          setIsLoggedIn(true);
           setToastData({ message: "Login feito com sucesso", type: "success" });
           router.push("/");
         }
       })
       .catch((error) => {
+        console.error(error);
         setToastData({
           message: "Erro ao fazer login",
           type: "error",

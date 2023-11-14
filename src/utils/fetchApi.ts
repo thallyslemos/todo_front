@@ -1,5 +1,12 @@
 const baseURL = process.env.NEXT_PUBLIC_API_URLn || "http://localhost:3000";
 
+function getToken() {
+  if (typeof window !== "undefined") {
+    return sessionStorage.getItem("token");
+  }
+  return null;
+}
+
 function handleResponse(response: Response) {
   if (!response.ok) {
     return response.text().then((text) => {
@@ -14,12 +21,15 @@ function handleResponse(response: Response) {
   }
 }
 
-function get(path: string, token?: string) {
+function get(path: string) {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
+
+  const token = getToken();
+
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return fetch(`${baseURL}${path}`, {
@@ -29,12 +39,15 @@ function get(path: string, token?: string) {
     .catch((error) => console.error(error));
 }
 
-function post(path: string, data: object, token?: string) {
+function post(path: string, data: object) {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
+
+  const token = getToken();
+
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return fetch(`${baseURL}${path}`, {
@@ -46,12 +59,15 @@ function post(path: string, data: object, token?: string) {
     .catch((error) => console.error(error));
 }
 
-function put(path: string, data: object, token?: string) {
+function put(path: string, data: object) {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
+
+  const token = getToken();
+
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return fetch(`${baseURL}${path}`, {
@@ -63,12 +79,15 @@ function put(path: string, data: object, token?: string) {
     .catch((error) => console.error(error));
 }
 
-function del(path: string, token?: string) {
+function del(path: string) {
   const headers: HeadersInit = {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   };
+
+  const token = getToken();
+
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+    headers["Authorization"] = `Bearer ${token}`;
   }
 
   return fetch(`${baseURL}${path}`, {

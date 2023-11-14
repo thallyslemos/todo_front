@@ -20,14 +20,14 @@ import { useRouter } from "next/navigation";
 export default function TodoPage({ params }: { params: { id: string } }) {
   const [todoList, setTodoList] = useState<TodoListType>();
   const [loading, setLoading] = useState(true);
-  const { setToastData, setShowToast, isLogged } = useGlobalContext();
+  const { setToastData, setShowToast, isLoggedIn } = useGlobalContext();
 
   const { id } = params;
 
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLogged()) {
+    if (!isLoggedIn) {
       setToastData({
         message: "Você precisa estar logado para acessar essa página",
         type: "error",
@@ -36,7 +36,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
       setShowToast(false);
       setTimeout(() => setShowToast(true), 0);
     }
-  }, []);
+  }, [isLoggedIn, router, setToastData, setShowToast]);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -81,7 +81,7 @@ export default function TodoPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="min-h-screen-main flex py-10 px-2 justify-center">
-      {isLogged() && (
+      {isLoggedIn && (
         <CustomCard title={todoList?.name || "Carregando..."}>
           <div className="flex gap-2 justify-center">
             <Link href="/todo" className="mx-auto mt-2">
@@ -108,15 +108,16 @@ export default function TodoPage({ params }: { params: { id: string } }) {
           {!loading && (
             <CardBody className="overflow-y-auto max-h-full">
               <section className="flex flex-col my-3 gap-2 ">
-                {todoList?.todos.map((todo, index) => (
-                  <TodoItem
-                    onDelete={handleDelete}
-                    checkChange={handleUpdate}
-                    onUpdate={fetchData}
-                    key={index}
-                    todo={todo}
-                  />
-                ))}
+                {todoList &&
+                  todoList?.todos.map((todo, index) => (
+                    <TodoItem
+                      onDelete={handleDelete}
+                      checkChange={handleUpdate}
+                      onUpdate={fetchData}
+                      key={index}
+                      todo={todo}
+                    />
+                  ))}
               </section>
             </CardBody>
           )}
